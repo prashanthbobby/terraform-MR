@@ -20,7 +20,7 @@ jobs:
       # Deploy DR environment
       - name: Terraform Init and Apply DR
         run: |
-          cd ./terraform-MR/Terraform-CICD/DR
+          cd terraform-MR/Terraform-CICD/DR
           terraform init
           terraform apply -auto-approve
         env:
@@ -33,7 +33,7 @@ jobs:
       - name: Create Pull Request for prod
         if: success()
         run: |
-          cd ./terraform-MR/Terraform-CICD/prod
+          cd terraform-MR/Terraform-CICD/prod
           terraform init
           terraform apply -auto-approve
         env:
