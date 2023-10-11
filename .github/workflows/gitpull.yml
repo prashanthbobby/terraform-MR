@@ -1,0 +1,53 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.0
+
+      # Deploy DR environment
+      - name: Terraform Init and Apply DR
+        run: |
+          cd DR
+          terraform init
+          terraform apply -auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY }}
+        
+      # Add your tests or validation steps here for DR environment
+
+      # Deploy prod environment if DR deployment is successful
+      - name: Create Pull Request for prod
+        if: success()
+        run: |
+          cd prod
+          terraform init
+          terraform apply -auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY }}
+        
+      # Add your tests or validation steps here for prod environment
+
+      # Automatically create a pull request
+      - name: Create Pull Request
+        if: success()
+        run: |
+          git checkout -b feature/prod-deployment
+          git add .
+          git commit -m "Deployed prod environment"
+          git push origin feature/prod-deployment
+          gh pr create --base main --head feature/prod-deployment --title "Prod Deployment" --body "Prod deployment changes"
