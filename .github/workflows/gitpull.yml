@@ -11,18 +11,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.0.0
 
       # Deploy DR environment
-      - name: Terraform Init and Apply DR
-        run: |
-          ls -R terraform-MR/Terraform-CICD/DR
-          terraform init
-          terraform apply -auto-approve
+      - name: Terraform Init
+        run: terraform init
+        working-directory: "./terraform-MR/Terraform-CICD/DR"
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: "./terraform-MR/Terraform-CICD/DR"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY }}
@@ -32,10 +32,12 @@ jobs:
       # Deploy prod environment if DR deployment is successful
       - name: Create Pull Request for prod
         if: success()
-        run: |
-          ls -R terraform-MR/Terraform-CICD/prod
-          terraform init
-          terraform apply -auto-approve
+      - name: Terraform Init
+        run: terraform init
+        working-directory: "./terraform-MR/Terraform-CICD/DR"
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: "./terraform-MR/Terraform-CICD/DR"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY }}
