@@ -44,7 +44,7 @@ jobs:
         run: terraform destroy -auto-approve
         working-directory: "./terraform-MR/Terraform-CICD/DR"
 
-  deploy_Prod:
+  deploy_main:
     needs: deploy_DR
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
