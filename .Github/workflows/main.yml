@@ -6,7 +6,7 @@ on:
       - DR
   push:
     branches:
-      - main
+      - Prod
 
 jobs:
   deploy_DR:
@@ -18,33 +18,33 @@ jobs:
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY }}
+          aws-access-key-id: ${{ secrets.ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.SECRET_KEY }}
           aws-region: us-east-1
 
       - name: Set up Terraform for DR
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.0.0
-        working-directory: DR
+        working-directory: "./terraform-MR/Terraform-CICD/DR"
 
       - name: Terraform Init for DR
         run: terraform init
-        working-directory: DR
+        working-directory: "./terraform-MR/Terraform-CICD/DR"
 
-      - name: Terraform Init for DR
+      - name: Terraform Plan for DR
         run: terraform plan
-        working-directory: DR
+        working-directory: "./terraform-MR/Terraform-CICD/DR"
 
       - name: Terraform Apply for DR
         run: terraform apply -auto-approve
-        working-directory: 
+        working-directory: "./terraform-MR/Terraform-CICD/DR"
 
-      - name: Terraform Apply for DR
+      - name: Terraform Destroy for DR
         run: terraform destroy -auto-approve
-        working-directory: DR
+        working-directory: "./terraform-MR/Terraform-CICD/DR"
 
-  deploy_main:
+  deploy_Prod:
     needs: deploy_DR
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
@@ -55,28 +55,28 @@ jobs:
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY }}
+          aws-access-key-id: ${{ secrets.ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.SECRET_KEY }}
           aws-region: us-west-2
 
       - name: Set up Terraform for main branch
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.0.0
-        working-directory: Prod
+        working-directory: "./terraform-MR/Terraform-CICD/Prod"
 
       - name: Terraform Init for main branch
         run: terraform init
-        working-directory: Prod
+        working-directory: "./terraform-MR/Terraform-CICD/Prod"
 
-      - name: Terraform Init for main branch
+      - name: Terraform Plan for main branch
         run: terraform plan
-        working-directory: Prod
+        working-directory: "./terraform-MR/Terraform-CICD/Prod"
 
       - name: Terraform Apply for main branch
         run: terraform apply -auto-approve
-        working-directory: Prod
+        working-directory: "./terraform-MR/Terraform-CICD/Prod"
 
-      - name: Terraform Apply for main branch
+      - name: Terraform Destroy for main branch
         run: terraform destroy -auto-approve
-        working-directory: Prod
+        working-directory: "./terraform-MR/Terraform-CICD/Prod"
